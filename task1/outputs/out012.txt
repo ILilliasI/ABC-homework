@@ -1,0 +1,5 @@
+Modified container:
+Container contains 3 elements.
+0: It is a tree: name = pine, age = 300
+1: It is a bush: name = blueberry, flowering month = 10
+2: It is a flower: name = tulip, type = wild

@@ -1,0 +1,7 @@
+Filled container:
+Container contains 5 elements.
+0: It is a tree: name = aaaaaaaaaaaaaaaaaaaa, age = 2147483647
+1: It is a bush: name = a, flowering month = 11
+2: It is a bush: name = b, flowering month = 0
+3: It is a flower: name = abc, type = wild
+4: It is a flower: name = abc, type = potted
