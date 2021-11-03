@@ -1,0 +1,3 @@
+Filled container:
+Container contains 1 elements.
+0: It is a tree: name = a, age = 3000

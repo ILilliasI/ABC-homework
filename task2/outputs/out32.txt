@@ -1,0 +1,12 @@
+Modified container:
+Container contains 10 elements.
+0: It is a flower: name = a, type = potted
+1: It is a bush: name = obb, flowering month = 5
+2: It is a flower: name = twurmeca, type = potted
+3: It is a tree: name = vi, age = 75466685
+4: It is a bush: name = dbvjioeaeealwd, flowering month = 9
+5: It is a flower: name = uoagjxtnk, type = wild
+6: It is a bush: name = oil, flowering month = 2
+7: It is a tree: name = whhvimgozwzznoaaxae, age = 2040303557
+8: It is a bush: name = ofimexk, flowering month = 5
+9: It is a bush: name = kfxeameixj, flowering month = 8
