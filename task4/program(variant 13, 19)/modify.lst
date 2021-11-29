@@ -1,0 +1,243 @@
+     1                                  extern printf
+     2                                  extern fprintf
+     3                                  extern OutPlant
+     4                                  
+     5                                  extern TREE
+     6                                  extern BUSH
+     7                                  extern FLOWER
+     8                                  
+     9                                  
+    10                                  ; // Вывод содержимого контейнера в файл
+    11                                  global OutModifiedContainer
+    12                                  OutModifiedContainer:
+    13                                  section .data
+    14 00000000 25643A00                    numFmt   db    "%d:",0
+    15 00000004 417665726167653A20-         fmt      db    "Average: %f", 10,0
+    15 0000000D 25660A00           
+    16 00000011 0000000000000000            .len     dq    0
+    17 00000019 0000000000000000            .count   dq    0
+    18 00000021 0000000000000000            .c       dq    0
+    19 00000029 0000000000000000            .average dq    0.0
+    20 00000031 0000000000000000            .curr    dq    0.0
+    21 00000039 000000000000F03F            .one     dq    1.0
+    22                                  section .bss
+    23 00000000 <res 00000008>              .pcont  resq    1   ; Адрес контейнера
+    24 00000008 <res 00000008>              .FILE   resq    1   ; Указатель на файл
+    25                                  section .text
+    26 00000000 55                      push rbp
+    27 00000001 4889E5                  mov rbp, rsp
+    28                                  
+    29 00000004 48893C25[00000000]          mov     [.pcont], rdi
+    30 0000000C 893425[11000000]            mov     [.len],   esi
+    31 00000013 48891425[08000000]          mov     [.FILE],  rdx
+    32                                  
+    33 0000001B 48C70425[21000000]-         mov     qword[.c], 0
+    33 00000023 00000000           
+    34 00000027 660FEFED                    pxor    xmm5, xmm5
+    35                                     
+    36                                  .countSize:
+    37 0000002B 488B0425[19000000]          mov     rax, qword[.count]
+    38 00000033 483B0425[11000000]          cmp     rax, qword[.len]
+    39 0000003B 7413                        je      .next
+    40                                      
+    41 0000003D 48FF0425[19000000]          inc     qword[.count]
+    42 00000045 F20F582C25-                 addsd   xmm5, [.one]
+    42 0000004A [39000000]         
+    43                                      
+    44 0000004E EBDB                        jmp     .countSize
+    45                                   
+    46                                  .next:
+    47                                      ; Считаем среднее для признака
+    48 00000050 488B3C25[00000000]          mov     rdi, [.pcont]
+    49 00000058 488B3425[11000000]          mov     rsi, [.len],   
+    50 00000060 488B1425[08000000]          mov     rdx, [.FILE] 
+    51 00000068 E870010000                  call    CalculateAverage
+    52 0000006D F20F10E1                    movsd   xmm4, xmm1
+    53 00000071 F20F5EE5                    divsd   xmm4, xmm5
+    54 00000075 F20F112425-                 movsd   [.average], xmm4
+    54 0000007A [29000000]         
+    55                                      
+    56 0000007E 488B3C25[08000000]          mov     rdi, [.FILE]
+    57 00000086 48BE-                       mov     rsi, fmt
+    57 00000088 [0400000000000000] 
+    58 00000090 F20F100425-                 movsd   xmm0, [.average]
+    58 00000095 [29000000]         
+    59 00000099 4883C001                    add     rax, 1
+    60 0000009D E8(00000000)                call    fprintf
+    61                                      
+    62 000000A2 488B1C25[11000000]          mov     rbx, [.len]         ; Число растений
+    63 000000AA 31C9                        xor     ecx, ecx            ; Счетчик растений = 0
+    64 000000AC 488B3425[08000000]          mov     rsi, [.FILE]
+    65                                  
+    66                                  .loop:
+    67 000000B4 39D9                        cmp     ecx, ebx
+    68 000000B6 0F8D8B000000                jge     .return        ; Перебрали все растения
+    69                                  
+    70 000000BC 53                          push    rbx
+    71 000000BD 51                          push    rcx
+    72                                  
+    73                                          
+    74 000000BE 488B3C25[00000000]          mov     rdi, [.pcont]
+    75 000000C6 E87E000000                  call    CalculateRatioOfVowelsToAllLetters
+    76 000000CB F20F111425-                 movsd   [.curr], xmm2
+    76 000000D0 [31000000]         
+    77                                  
+    78 000000D4 F20F102425-                 movsd   xmm4, [.average]
+    78 000000D9 [29000000]         
+    79 000000DD F20F101425-                 movsd   xmm2, [.curr]
+    79 000000E2 [31000000]         
+    80                                      
+    81 000000E6 660F2FD4                    comisd  xmm2, xmm4
+    82 000000EA 723E                        jb      .donotprint
+    83                                  
+    84                                      ; Вывод номера растения 
+    85 000000EC 488B3C25[08000000]          mov     rdi, [.FILE]
+    86 000000F4 48BE-                       mov     rsi, numFmt
+    86 000000F6 [0000000000000000] 
+    87 000000FE 8B1425[21000000]            mov     edx, [.c]
+    88 00000105 4831C0                      xor     rax, rax
+    89 00000108 E8(00000000)                call    fprintf
+    90                                      
+    91 0000010D 48FF0425[21000000]          inc qword[.c]
+    92                                  
+    93                                      ; Вывод текущего растения
+    94 00000115 488B3C25[00000000]          mov     rdi, [.pcont]
+    95 0000011D 488B3425[08000000]          mov     rsi, [.FILE]
+    96 00000125 E8(00000000)                call    OutPlant
+    97                                      
+    98                                      
+    99                                  .donotprint:
+   100 0000012A 59                          pop     rcx
+   101 0000012B 5B                          pop     rbx
+   102 0000012C FFC1                        inc     ecx  
+   103                                  
+   104 0000012E 488B0425[00000000]          mov     rax, [.pcont]
+   105 00000136 4883C01D                    add     rax, 29         ; Адрес следущего растения
+   106 0000013A 48890425[00000000]          mov     [.pcont], rax
+   107 00000142 E96DFFFFFF                  jmp     .loop
+   108                                  .return:
+   109 00000147 C9                      leave
+   110 00000148 C3                      ret
+   111                                  
+   112                                  ;----------------------------------------------
+   113                                  ; Поиск частного от деления числам гласных букв в названии на общую длину названия.
+   114                                  global CalculateRatioOfVowelsToAllLetters
+   115                                  CalculateRatioOfVowelsToAllLetters:
+   116                                  section .data
+   117 00000041 0000000000000000            .vowels_count   dq    0
+   118 00000049 0000000000000000            .letters_count  dq    0
+   119                                  section .bss
+   120 00000010 <res 00000008>              .pplant         resq  1     ; Адрес растения
+   121                                  section .text
+   122 00000149 55                      push    rbp
+   123 0000014A 4889E5                  mov     rbp, rsp
+   124                                  
+   125 0000014D 48C70425[41000000]-         mov     qword[.vowels_count],  0
+   125 00000155 00000000           
+   126 00000159 48C70425[49000000]-         mov     qword[.letters_count], 0
+   126 00000161 00000000           
+   127 00000165 4883C704                    add     rdi, 4
+   128 00000169 48893C25[10000000]          mov     [.pplant], rdi
+   129                                  .loop:
+   130 00000171 488B0425[10000000]          mov     rax, [.pplant]
+   131 00000179 48030425[49000000]          add     rax, [.letters_count]
+   132 00000181 803800                      cmp     byte [rax], 0x00
+   133 00000184 742D                        je      .return
+   134                                      
+   135 00000186 48FF0425[49000000]          inc     qword [.letters_count]
+   136 0000018E 803861                      cmp     byte [rax], 0x61
+   137 00000191 7416                        je      .increase
+   138                                      
+   139 00000193 803865                      cmp     byte [rax], 0x65
+   140 00000196 7411                        je      .increase
+   141                                      
+   142 00000198 803869                      cmp     byte [rax], 0x69
+   143 0000019B 740C                        je      .increase
+   144                                      
+   145 0000019D 80386F                      cmp     byte [rax], 0x6F
+   146 000001A0 7407                        je      .increase
+   147                                      
+   148 000001A2 803875                      cmp     byte [rax], 0x75
+   149 000001A5 7402                        je      .increase
+   150                                      
+   151 000001A7 EBC8                        jmp     .loop
+   152                                  .increase:
+   153 000001A9 48FF0425[41000000]          inc     qword[.vowels_count]
+   154 000001B1 EBBE                        jmp     .loop
+   155                                  .return:  
+   156 000001B3 F20F101425-                 movsd   xmm2, [.vowels_count] 
+   156 000001B8 [41000000]         
+   157                                      ; Если кол-во букв = 0
+   158 000001BC 48833C25[49000000]-         cmp     qword[.letters_count], 0
+   158 000001C4 00                 
+   159 000001C5 740B                        je      .leave
+   160 000001C7 F20F5E1425-                 divsd   xmm2, [.letters_count]
+   160 000001CC [49000000]         
+   161                                  
+   162 000001D0 C9                      leave
+   163 000001D1 C3                      ret
+   164                                  
+   165                                  .leave:
+   166 000001D2 F20F101425-                 movsd   xmm2, qword[.letters_count]
+   166 000001D7 [49000000]         
+   167                                       
+   168 000001DB C9                      leave
+   169 000001DC C3                      ret
+   170                                  
+   171                                  ;----------------------------------------------
+   172                                  ; Вычисление среднего арифметического для всех элементов контейнера, полученное с
+   173                                  ; использованием функции, общей для всех альтернатив.
+   174                                  global CalculateAverage
+   175                                  CalculateAverage:
+   176                                  section .data
+   177 00000051 0000000000000000            .zero   dq  0
+   178 00000059 256600                      .fmt    db  "%f", 0
+   179 0000005C 0000000000000000            .len    dq  0
+   180 00000064 2D2D25662D2D00              .spec   db  "--%f--", 0
+   181 0000006B 0000000000000000            .sum    dq  0.0
+   182                                  section .bss
+   183 00000018 <res 00000008>              .pcont  resq    1   ; Адрес контейнера
+   184 00000020 <res 00000008>              .FILE   resq    1   ; Указатель на файл
+   185                                  section .text
+   186 000001DD 55                      push rbp
+   187 000001DE 4889E5                  mov rbp, rsp
+   188                                  
+   189 000001E1 660FEFC9                    pxor    xmm1, xmm1
+   190 000001E5 F20F110C25-                 movsd   [.sum], xmm1
+   190 000001EA [6B000000]         
+   191 000001EE 48893C25[18000000]          mov     [.pcont], rdi
+   192 000001F6 48893425[5C000000]          mov     [.len],   rsi
+   193 000001FE 48891425[20000000]          mov     [.FILE],  rdx
+   194                                  
+   195 00000206 4889F3                      mov     rbx, rsi            ; Число растений
+   196 00000209 31C9                        xor     ecx, ecx            ; Счетчик растений = 0
+   197 0000020B 4889D6                      mov     rsi, rdx
+   198                                  .loop:
+   199 0000020E 39D9                        cmp     ecx, ebx
+   200 00000210 7D3F                        jge     .return             ; Перебрали все растения
+   201                                  
+   202 00000212 53                          push    rbx
+   203 00000213 51                          push    rcx
+   204                                  
+   205 00000214 488B3C25[18000000]          mov     rdi, [.pcont]  
+   206 0000021C E828FFFFFF                  call    CalculateRatioOfVowelsToAllLetters
+   207 00000221 F20F100C25-                 movsd   xmm1, [.sum]
+   207 00000226 [6B000000]         
+   208 0000022A F20F58CA                    addsd   xmm1, xmm2
+   209 0000022E F20F110C25-                 movsd   [.sum], xmm1
+   209 00000233 [6B000000]         
+   210                                  
+   211 00000237 59                          pop     rcx
+   212 00000238 5B                          pop     rbx
+   213 00000239 FFC1                        inc     ecx  
+   214                                  
+   215 0000023B 488B0425[18000000]          mov     rax, [.pcont]
+   216 00000243 4883C01D                    add     rax, 29           ; Адрес следущего растения
+   217 00000247 48890425[18000000]          mov     [.pcont], rax
+   218 0000024F EBBD                        jmp     .loop
+   219                                  .return:
+   220 00000251 F20F100C25-                 movsd   xmm1, [.sum]
+   220 00000256 [6B000000]         
+   221                                      
+   222 0000025A C9                      leave
+   223 0000025B C3                      ret

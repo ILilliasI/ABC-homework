@@ -1,0 +1,8 @@
+Filled container:
+0: It is a tree: name = pine, age = 300
+1: It is a flower: name = tulip, type = 3
+2: It is a bush: name = blueberry, flowering month = 11
+3: It is a tree: name = larch, age = 330
+4: It is a bush: name = blackberry, flowering month = 4
+5: It is a bush: name = blackberry, flowering month = 10
+6: It is a tree: name = birch, age = 330

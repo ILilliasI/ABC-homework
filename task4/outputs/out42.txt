@@ -1,0 +1,4 @@
+Modified container:
+Average: 0.533333
+0:It is a tree: name = aaaaaaaaaaaaaaaaaaaa, age = 2147483647
+1:It is a bush: name = a, flowering month = 12

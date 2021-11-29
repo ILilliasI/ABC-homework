@@ -1,0 +1,283 @@
+     1                                  extern printf
+     2                                  extern fprintf
+     3                                  
+     4                                  extern TREE
+     5                                  extern BUSH
+     6                                  extern FLOWER
+     7                                  
+     8                                  ;----------------------------------------------
+     9                                  ;// Вывод параметров дерева в файл
+    10                                  global OutTree
+    11                                  OutTree:
+    12                                  section .data
+    13 00000000 0000000000000000             .count     dq   0
+    14 00000008 256300                      .formatname db   "%c", 0
+    15 0000000B 2C20616765203D2025-         .formatage  db   ", age = %ld", 10, 0
+    15 00000014 6C640A00           
+    16 00000018 497420697320612074-         .outfmt     db   "It is a tree: name = " , 0
+    16 00000021 7265653A206E616D65-
+    16 0000002A 203D2000           
+    17                                      
+    18                                  section .bss
+    19 00000000 <res 00000008>              .ptree  resq  1       ; Адрес дерева
+    20 00000008 <res 00000008>              .FILE   resq  1       ; Временное хранение указателя на файл
+    21                                  section .text
+    22 00000000 55                      push    rbp
+    23 00000001 4889E5                  mov     rbp, rsp
+    24                                  
+    25                                      ; Сохранение принятых аргументов
+    26 00000004 48893C25[00000000]          mov     [.ptree], rdi
+    27 0000000C 48893425[08000000]          mov     [.FILE], rsi
+    28                                  
+    29                                      ; Вывод информации о дереве в файл
+    30 00000014 488B3C25[08000000]          mov     rdi, [.FILE]
+    31 0000001C 48BE-                       mov     rsi, .outfmt
+    31 0000001E [1800000000000000] 
+    32 00000026 E8(00000000)                call    fprintf
+    33 0000002B 48C70425[00000000]-         mov     qword [.count], 0
+    33 00000033 00000000           
+    34                                  .loop:
+    35 00000037 488B0425[00000000]          mov     rax, [.ptree]
+    36 0000003F 48030425[00000000]          add     rax, [.count]
+    37 00000047 803800                      cmp     byte [rax], 0x00
+    38 0000004A 7438                        je      .return
+    39                                      
+    40 0000004C 488B3C25[08000000]          mov     rdi, [.FILE]
+    41 00000054 48BE-                       mov     rsi, .formatname 
+    41 00000056 [0800000000000000] 
+    42 0000005E 488B0425[00000000]          mov     rax, [.ptree]  
+    43 00000066 48030425[00000000]          add     rax, [.count] 
+    44 0000006E 8B10                        mov     edx, [rax]
+    45 00000070 B800000000                  mov     rax, 0 
+    46 00000075 E8(00000000)                call    fprintf
+    47 0000007A 48FF0425[00000000]          inc     qword [.count]
+    48 00000082 EBB3                        jmp     .loop
+    49                                  .return: 
+    50 00000084 488B3C25[08000000]          mov     rdi, [.FILE]
+    51 0000008C 48BE-                       mov     rsi, .formatage 
+    51 0000008E [0B00000000000000] 
+    52 00000096 488B0425[00000000]          mov     rax, [.ptree] 
+    53 0000009E 4883C015                    add     rax, 21
+    54 000000A2 8B10                        mov     edx, [rax]   
+    55 000000A4 B800000000                  mov     rax, 0                  
+    56 000000A9 E8(00000000)                call    fprintf
+    57                                  
+    58 000000AE C9                      leave
+    59 000000AF C3                      ret
+    60                                  
+    61                                  ;----------------------------------------------
+    62                                  ; // Вывод параметров куста в файл
+    63                                  global OutBush
+    64                                  OutBush:
+    65                                  section .data
+    66 0000002E 0000000000000000            .count      dq   0
+    67 00000036 256300                      .formatname db   "%c", 0
+    68 00000039 2C20666C6F77657269-         .formatage  db   ", flowering month = %d", 10, 0
+    68 00000042 6E67206D6F6E746820-
+    68 0000004B 3D2025640A00       
+    69 00000051 256400                      .form       db   "%d", 0
+    70 00000054 497420697320612062-         .outfmt     db   "It is a bush: name = " , 0
+    70 0000005D 7573683A206E616D65-
+    70 00000066 203D2000           
+    71                                  section .bss
+    72 00000010 <res 00000008>              .pbush  resq  1       ; Адрес куста
+    73 00000018 <res 00000008>              .FILE   resq  1       ; Временное хранение указателя на файл
+    74                                  section .text
+    75 000000B0 55                      push    rbp
+    76 000000B1 4889E5                  mov     rbp, rsp
+    77                                  
+    78                                      ; Сохранени принятых аргументов
+    79 000000B4 48893C25[10000000]          mov     [.pbush], rdi
+    80 000000BC 48893425[18000000]          mov     [.FILE], rsi 
+    81                                  
+    82                                      ; Вывод информации о кусте в файл  
+    83 000000C4 488B3C25[18000000]          mov     rdi, [.FILE]
+    84 000000CC 48BE-                       mov     rsi, .outfmt
+    84 000000CE [5400000000000000] 
+    85 000000D6 E8(00000000)                call    fprintf
+    86 000000DB 48C70425[2E000000]-         mov     qword [.count], 0
+    86 000000E3 00000000           
+    87                                  .loop:
+    88 000000E7 488B0425[10000000]          mov     rax, [.pbush]
+    89 000000EF 48030425[2E000000]          add     rax, [.count]
+    90 000000F7 803800                      cmp     byte [rax], 0x00
+    91 000000FA 7438                        je      .return
+    92                                      
+    93 000000FC 488B3C25[18000000]          mov     rdi, [.FILE]
+    94 00000104 48BE-                       mov     rsi, .formatname 
+    94 00000106 [3600000000000000] 
+    95 0000010E 488B0425[10000000]          mov     rax, [.pbush]  
+    96 00000116 48030425[2E000000]          add     rax, [.count] 
+    97 0000011E 8B10                        mov     edx, [rax] 
+    98 00000120 B800000000                  mov     rax, 0 
+    99 00000125 E8(00000000)                call    fprintf
+   100 0000012A 48FF0425[2E000000]          inc     qword [.count]
+   101 00000132 EBB3                        jmp     .loop
+   102                                  .return:  
+   103 00000134 488B3C25[18000000]          mov     rdi, [.FILE]
+   104 0000013C 48BE-                       mov     rsi, .formatage
+   104 0000013E [3900000000000000] 
+   105 00000146 488B0425[10000000]          mov     rax, [.pbush] 
+   106 0000014E 4883C015                    add     rax, 21 
+   107 00000152 8B10                        mov     edx, [rax]   
+   108 00000154 B800000000                  mov     rax, 0                  
+   109 00000159 E8(00000000)                call    fprintf
+   110                                  
+   111 0000015E C9                      leave
+   112 0000015F C3                      ret
+   113                                  
+   114                                  ;----------------------------------------------
+   115                                  ; // Вывод параметров цветка в файл
+   116                                  global OutFlower
+   117                                  OutFlower:
+   118                                  section .data
+   119 0000006A 0000000000000000            .count      dq   0
+   120 00000072 256300                      .formatname db   "%c", 0
+   121 00000075 2C2074797065203D20-         .formatage  db   ", type = %d", 10, 0
+   121 0000007E 25640A00           
+   122 00000082 256400                      .form       db   "%d", 0
+   123 00000085 497420697320612066-         .outfmt     db   "It is a flower: name = " , 0
+   123 0000008E 6C6F7765723A206E61-
+   123 00000097 6D65203D2000       
+   124                                  section .bss
+   125 00000020 <res 00000008>              .pflower  resq  1     ; Адрес цветка
+   126 00000028 <res 00000008>              .FILE     resq  1       ; Временное хранение указателя на файл
+   127                                  section .text
+   128 00000160 55                      push    rbp
+   129 00000161 4889E5                  mov     rbp, rsp
+   130                                  
+   131                                      ; Сохранение принятых аргументов
+   132 00000164 48893C25[20000000]          mov     [.pflower], rdi
+   133 0000016C 48893425[28000000]          mov     [.FILE], rsi 
+   134                                  
+   135                                      ; Вывод информации о цветке в файл  
+   136 00000174 488B3C25[28000000]          mov     rdi, [.FILE]
+   137 0000017C 48BE-                       mov     rsi, .outfmt
+   137 0000017E [8500000000000000] 
+   138 00000186 E8(00000000)                call    fprintf
+   139 0000018B 48C70425[6A000000]-         mov qword [.count], 0
+   139 00000193 00000000           
+   140                                  .loop:
+   141 00000197 488B0425[20000000]          mov rax, [.pflower]
+   142 0000019F 48030425[6A000000]          add rax, [.count]
+   143 000001A7 803800                      cmp byte [rax], 0x00
+   144 000001AA 7438                        je .return
+   145                                      
+   146 000001AC 488B3C25[28000000]          mov     rdi, [.FILE]
+   147 000001B4 48BE-                       mov     rsi, .formatname 
+   147 000001B6 [7200000000000000] 
+   148 000001BE 488B0425[20000000]          mov     rax, [.pflower]  
+   149 000001C6 48030425[6A000000]          add     rax, [.count] 
+   150 000001CE 8B10                        mov     edx, [rax] 
+   151 000001D0 B800000000                  mov     rax, 0 
+   152 000001D5 E8(00000000)                call    fprintf
+   153 000001DA 48FF0425[6A000000]          inc     qword [.count]
+   154 000001E2 EBB3                        jmp     .loop
+   155                                  .return:  
+   156 000001E4 488B3C25[28000000]          mov     rdi, [.FILE]
+   157 000001EC 48BE-                       mov     rsi, .formatage
+   157 000001EE [7500000000000000] 
+   158 000001F6 488B0425[20000000]          mov     rax, [.pflower] 
+   159 000001FE 4883C015                    add     rax, 21 
+   160 00000202 8B10                        mov     edx, [rax]   
+   161 00000204 B800000000                  mov     rax, 0                  
+   162 00000209 E8(00000000)                call    fprintf
+   163                                  
+   164 0000020E C9                      leave
+   165 0000020F C3                      ret
+   166                                  
+   167                                  ;----------------------------------------------
+   168                                  ; // Вывод параметров текущего растения в файл
+   169                                  global OutPlant
+   170                                  OutPlant:
+   171                                  section .data
+   172 0000009D 496E636F7272656374-         .erPlant db "Incorrect plant!",10,0
+   172 000000A6 20706C616E74210A00 
+   173                                  section .text
+   174 00000210 55                      push    rbp
+   175 00000211 4889E5                  mov     rbp, rsp
+   176                                  
+   177 00000214 8B07                        mov     eax, [rdi]
+   178 00000216 3B0425[00000000]            cmp     eax, [TREE]
+   179 0000021D 7428                        je      treeOut
+   180 0000021F 3B0425[00000000]            cmp     eax, [BUSH]
+   181 00000226 742A                        je      bushOut
+   182 00000228 3B0425[00000000]            cmp     eax, [FLOWER]
+   183 0000022F 742C                        je      flowerOut
+   184 00000231 48BF-                       mov     rdi, .erPlant
+   184 00000233 [9D00000000000000] 
+   185 0000023B B800000000                  mov     rax, 0
+   186 00000240 E8(00000000)                call    fprintf
+   187 00000245 EB1F                        jmp     return
+   188                                  treeOut:
+   189                                      ; Вывод дерева
+   190 00000247 4883C704                    add     rdi, 4
+   191 0000024B E8B0FDFFFF                  call    OutTree
+   192 00000250 EB14                        jmp     return
+   193                                  bushOut:
+   194                                      ; Вывод куста
+   195 00000252 4883C704                    add     rdi, 4
+   196 00000256 E855FEFFFF                  call    OutBush
+   197 0000025B EB09                        jmp     return
+   198                                  flowerOut:
+   199                                      ; Вывод цветка
+   200 0000025D 4883C704                    add     rdi, 4
+   201 00000261 E8FAFEFFFF                  call    OutFlower
+   202                                  return:
+   203 00000266 C9                      leave
+   204 00000267 C3                      ret
+   205                                  
+   206                                  ;----------------------------------------------
+   207                                  ; // Вывод содержимого контейнера в файл
+   208                                  global OutContainer
+   209                                  OutContainer:
+   210                                  section .data
+   211 000000AF 25643A2000                  numFmt  db  "%d: ",0
+   212                                  section .bss
+   213 00000030 <res 00000008>              .pcont  resq    1   ; Адрес контейнера
+   214 00000038 <res 00000004>              .len    resd    1   ; Адрес для сохранения числа введенных элементов
+   215 0000003C <res 00000008>              .FILE   resq    1   ; Указатель на файл
+   216                                  section .text
+   217 00000268 55                      push rbp
+   218 00000269 4889E5                  mov rbp, rsp
+   219                                  
+   220 0000026C 48893C25[30000000]          mov     [.pcont], rdi
+   221 00000274 893425[38000000]            mov     [.len],   esi
+   222 0000027B 48891425[3C000000]          mov     [.FILE],  rdx
+   223                                  
+   224 00000283 4889F3                      mov     rbx, rsi            ; Число растений
+   225 00000286 31C9                        xor     ecx, ecx            ; Счетчик растений = 0
+   226 00000288 4889D6                      mov     rsi, rdx
+   227                                  .loop:
+   228 0000028B 39D9                        cmp     ecx, ebx
+   229 0000028D 7D4D                        jge     .return             ; Перебрали все растения
+   230                                  
+   231 0000028F 53                          push    rbx
+   232 00000290 51                          push    rcx
+   233                                  
+   234                                      ; Вывод номера растения
+   235 00000291 488B3C25[3C000000]          mov     rdi, [.FILE]
+   236 00000299 48BE-                       mov     rsi, numFmt
+   236 0000029B [AF00000000000000] 
+   237 000002A3 89CA                        mov     edx, ecx 
+   238 000002A5 4831C0                      xor     rax, rax
+   239 000002A8 E8(00000000)                call    fprintf
+   240                                  
+   241                                      ; Вывод текущего растения
+   242 000002AD 488B3C25[30000000]          mov     rdi, [.pcont]
+   243 000002B5 488B3425[3C000000]          mov     rsi, [.FILE]
+   244 000002BD E84EFFFFFF                  call    OutPlant
+   245                                  
+   246 000002C2 59                          pop     rcx
+   247 000002C3 5B                          pop     rbx
+   248 000002C4 FFC1                        inc     ecx  
+   249                                  
+   250 000002C6 488B0425[30000000]          mov     rax, [.pcont]
+   251 000002CE 4883C01D                    add     rax, 29         ; Адрес следущего растения
+   252 000002D2 48890425[30000000]          mov     [.pcont], rax
+   253 000002DA EBAF                        jmp     .loop
+   254                                  .return:
+   255                                  
+   256 000002DC C9                      leave
+   257 000002DD C3                      ret
+   258                                  
