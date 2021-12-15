@@ -1,0 +1,1 @@
+g++ -std=c++17 main.cpp workshop.cpp pin.cpp curvatureWorker.cpp qualityVerifyWorker.cpp qualityVerifyWorker.h sharpeningWorker.cpp sharpeningWorker.h -o task -lpthread
